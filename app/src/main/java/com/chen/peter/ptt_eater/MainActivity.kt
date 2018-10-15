@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.webkit.WebView
 import android.widget.TextView
+import com.chen.peter.ptt_eater.database.PTTFoodRepo
 import com.chen.peter.ptt_eater.database.Post
+import com.chen.peter.ptt_eater.database.PostsDataBase
 import com.chen.peter.ptt_eater.network.Page
 import com.chen.peter.ptt_eater.network.PageAdapter
 import com.chen.peter.ptt_eater.network.PostAdapter
@@ -30,22 +32,16 @@ class MainActivity : AppCompatActivity() {
 
         val output = findViewById<TextView>(R.id.output)
 
-        val retrofit = Retrofit.Builder().
+        val getpage = Retrofit.Builder().
+            baseUrl("https://www.ptt.cc/bbs/").
+            addConverterFactory(PageAdapter.Factory).
+            build().create(PttAPI::class.java)
+        val getpost = Retrofit.Builder().
             baseUrl("https://www.ptt.cc/bbs/").
             addConverterFactory(PostAdapter.Factory).
-            build()
-        retrofit.create(PttAPI::class.java).getSecondLier().enqueue(
-            object : Callback<Post>{
-                override fun onFailure(call: Call<Post>, t: Throwable) {
-                    Log.e(TAG,t.message)
-                }
-
-                override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    val post = response.body()
-
-                    output.text = post?.title
-                }
-            }
-        )
+            build().create(PttAPI::class.java)
+        val db = PostsDataBase.getInstance(this)
+        val repo = PTTFoodRepo(db,getpage,getpost)
+        repo.refresh("Food/index.html")
     }
 }

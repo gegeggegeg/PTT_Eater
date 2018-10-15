@@ -6,11 +6,12 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface PttAPI {
-    @GET("Food/index.html")
-    fun getCall(): Call<Page>
+    @GET("{url}")
+    fun getCall(@Path("url")url:String): Call<Page>
 
-    @GET("Food/M.1539521174.A.95A.html")
-    fun getSecondLier(): Call<Post>
+    @GET("{url}")
+    fun getSecondLier(@Path("url")url:String): Call<Post>
 }

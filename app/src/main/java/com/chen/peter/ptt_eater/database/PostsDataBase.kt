@@ -8,13 +8,14 @@ import android.content.Context
 
 @Database(entities = arrayOf(Post::class),version = 1, exportSchema = false)
 abstract class PostsDataBase: RoomDatabase() {
-
-    fun getInstance(context: Context):PostsDataBase{
-        val builder = Room.databaseBuilder(context,PostsDataBase::class.java,"ptt.db")
-        return builder
-            .fallbackToDestructiveMigration()
-            .build()
+    companion object {
+        fun getInstance(context: Context): PostsDataBase {
+            val builder = Room.databaseBuilder(context, PostsDataBase::class.java, "FoodPosts.db")
+            return builder
+                .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
+                .build()
+        }
     }
-
     abstract fun postsDao():PostDAO
 }

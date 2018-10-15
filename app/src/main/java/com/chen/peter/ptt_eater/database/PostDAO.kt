@@ -11,7 +11,7 @@ import android.arch.persistence.room.Query
 interface PostDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(post: List<Post>)
+    fun insert(post: Post)
 
     @Query("SELECT * FROM FoodPosts")
     fun requestPosts() : DataSource.Factory<Int,Post>
