@@ -35,7 +35,7 @@ class PTTFoodRepo( val database:PostsDataBase,
         for (url in urls) {
             val retrofit = builder.baseUrl(url).build()
             pttApi = retrofit.create(PttAPI::class.java)
-            pttApi.getSecondLier().enqueue()
+            //pttApi.getSecondLier().enqueue()
         }
     }
 

@@ -1,5 +1,6 @@
 package com.chen.peter.ptt_eater.network
 
+import android.util.Log
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -23,17 +24,20 @@ class PageAdapter:Converter<ResponseBody,Page>{
     }
     override fun convert(responsebody: ResponseBody): Page {
         val document:Document = Jsoup.parse(responsebody.string())
-        val top:Elements = document.select("div.btn-group")
-        val last:String = top.get(2).attr("href")
+        val top= document.select("div.btn-group.btn-group-paging")
+        val last = top.select("a").get(1).attr("href")
         val body:Elements = document.select("div.r-ent")
         val articleList:ArrayList<Page.Article> = ArrayList()
         for(element in body){
-            val article:Page.Article = Page.Article(
-                element.select("a").text(),
-                element.select("a").attr("href"),
-                element.select("div.author").text()
-            )
-            articleList.add(article)
+            if(element.select("a").get(0).text().contains("食記")||
+                element.select("a").get(0).text().contains("廣宣")) {
+                val article: Page.Article = Page.Article(
+                    element.select("a").get(0).text(),
+                    element.select("a").attr("href"),
+                    element.select("div.author").text()
+                )
+                articleList.add(article)
+            }
         }
         val page = Page(last,articleList)
         return page
