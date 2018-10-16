@@ -1,17 +1,19 @@
 package com.chen.peter.ptt_eater
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import com.chen.peter.ptt_eater.database.PTTFoodRepo
 import com.chen.peter.ptt_eater.database.PostsDataBase
 import com.chen.peter.ptt_eater.network.PageAdapter
 import com.chen.peter.ptt_eater.network.PostAdapter
 import com.chen.peter.ptt_eater.network.PttAPI
+import com.chen.peter.ptt_eater.ui.PttFoodAdapter
 import com.chen.peter.ptt_eater.viewmodel.PttFoodViewModel
 import retrofit2.Retrofit
 
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         model = getViewModel()
+        initRecyclerView()
+        model.refresh()
     }
 
     private fun getViewModel(): PttFoodViewModel{
@@ -49,6 +53,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView(){
         val recyclerview = findViewById<RecyclerView>(R.id.recyclerView1)
-
+        recyclerview.layoutManager = LinearLayoutManager(this)
+        val adapter = PttFoodAdapter()
+        recyclerview.adapter = adapter
+        model.getLiveDataPagedlist().observe(this, Observer { posts->
+            if(posts != null) adapter.submitList(posts)})
     }
 }

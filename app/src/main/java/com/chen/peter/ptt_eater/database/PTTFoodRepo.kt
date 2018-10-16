@@ -21,12 +21,13 @@ class PTTFoodRepo( val database:PostsDataBase,
                    private  val pageSize:Int = 10){
     companion object {
         private var counter = 0
+        private var next = ""
     }
 
     val TAG = "PTTFoodRepo"
 
     @MainThread
-    fun refresh(url:String){
+    fun refresh(url:String = next ){
         pttApi.getCall(url).enqueue(
             object :Callback<Page>{
                 override fun onResponse(call: Call<Page>, response: Response<Page>) {
@@ -41,10 +42,12 @@ class PTTFoodRepo( val database:PostsDataBase,
 
                     if(counter>pageSize){
                         counter = 0
+                        val last: String = response.body()!!.last
+                        next =  last.substring(last.indexOf("bbs/")+4)
                     }else{
                         val last: String = response.body()!!.last
-                        val next =  last.substring(last.indexOf("bbs/")+4)
-                        refresh(next)
+                        next =  last.substring(last.indexOf("bbs/")+4)
+                        refresh()
                     }
                 }
                 override fun onFailure(call: Call<Page>, t: Throwable) {
@@ -80,7 +83,11 @@ class PTTFoodRepo( val database:PostsDataBase,
 
 
     public fun getpagedList(): LiveData<PagedList<Post>>{
+
         return LivePagedListBuilder(database.postsDao().requestPosts(),pageSize).build()
     }
+
+
+
 
 }
