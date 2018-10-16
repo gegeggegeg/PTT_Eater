@@ -2,6 +2,7 @@ package com.chen.peter.ptt_eater.ui
 
 import android.arch.paging.PagedListAdapter
 import android.support.v7.util.DiffUtil
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.chen.peter.ptt_eater.R
@@ -35,7 +36,11 @@ class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
     }
 
     override fun onBindViewHolder(holder: PttFoodVIewHolder, position: Int) {
-        holder.bind(getItem(position)!!)
+        try {
+            holder.bind(getItem(position)!!)
+        }catch (e:Exception){
+            //do nothing
+        }
     }
 
 

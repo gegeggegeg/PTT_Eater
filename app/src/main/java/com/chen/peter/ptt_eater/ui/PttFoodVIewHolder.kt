@@ -14,7 +14,6 @@ class PttFoodVIewHolder(view: View):RecyclerView.ViewHolder(view) {
     private val author:TextView = view.findViewById(R.id.author)
     private val address:TextView = view.findViewById(R.id.address)
     private val phonenumber:TextView = view.findViewById(R.id.phoneNumber)
-    private val link:TextView = view.findViewById(R.id.link)
     private val date:TextView = view.findViewById(R.id.date)
     private var post:Post? = null
     private var article = "test"
@@ -31,13 +30,12 @@ class PttFoodVIewHolder(view: View):RecyclerView.ViewHolder(view) {
         author.text = post.author
         address.text = post.address
         phonenumber.text = post.phoneNumber
-        link.text = post.link
         date.text = post.time
         article = post.article
 
         view.setOnClickListener{
                 _->
-            var intent = Intent(view.context,article_activity::class.java)
+            var intent = Intent(view.context,ArticleActivity::class.java)
             intent.putExtra("article",article)
             view.context.startActivity(intent)
         }

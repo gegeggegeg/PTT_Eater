@@ -35,9 +35,9 @@ class PostAdapter: Converter<ResponseBody,Post> {
             val endindex = text.indexOf("※ 發")
             var main:String =""
             try {
-                main = text.substring(startindex, endindex)
-            }catch (e:Exception){
                 main = text.substring(text.indexOf("2018")+4,endindex)
+            }catch (e:Exception){
+                main = text.substring(startindex, endindex)
             }
             try {
                 post.article = main

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.widget.AbsListView
 import com.chen.peter.ptt_eater.database.PTTFoodRepo
 import com.chen.peter.ptt_eater.database.PostsDataBase
 import com.chen.peter.ptt_eater.network.PageAdapter
@@ -53,9 +54,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView(){
         val recyclerview = findViewById<RecyclerView>(R.id.recyclerView1)
-        recyclerview.layoutManager = LinearLayoutManager(this)
+        val mlayoutmanager = LinearLayoutManager(this)
+        recyclerview.layoutManager = mlayoutmanager
         val adapter = PttFoodAdapter()
         recyclerview.adapter = adapter
+//        recyclerview.addOnScrollListener(object :RecyclerView.OnScrollListener(){
+//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+//                val visibleItemCount = mlayoutmanager.childCount
+//                val totalitemCount = mlayoutmanager.itemCount
+//                val pastVisibleItems = mlayoutmanager.findFirstVisibleItemPosition()
+//                if(pastVisibleItems+visibleItemCount >= totalitemCount){
+//                    model.refresh()
+//                }
+//            }
+//        })
         model.getLiveDataPagedlist().observe(this, Observer { posts->
             if(posts != null) adapter.submitList(posts)})
     }
