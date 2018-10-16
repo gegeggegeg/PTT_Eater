@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document
 import retrofit2.Converter
 import retrofit2.Retrofit
 import java.lang.reflect.Type
+import java.util.regex.Pattern
 
 class PostAdapter: Converter<ResponseBody,Post> {
 
@@ -25,20 +26,59 @@ class PostAdapter: Converter<ResponseBody,Post> {
         }
     }
     override fun convert(response: ResponseBody): Post {
-        val document = Jsoup.parse(response.string())
-        document.outputSettings().prettyPrint(false)
-        val text = document.getElementById("main-content").wholeText()
-        val startindex = text.indexOf("餐廳")
-        val endindex  = text.indexOf("※ 發")
-        val main = text.substring(startindex,endindex)
-        val author = document.select("div.article-metaline").get(0).select("span.article-meta-value").text()
-        val title = document.select("div.article-metaline").get(1).select("span.article-meta-value").text()
-        val name = text.substring(text.indexOf("餐廳名稱：")+5,text.indexOf(" 消")).trim()
-        val date = document.select("div.article-metaline").get(2).select("span.article-meta-value").text()
-        val address = text.substring(text.indexOf("地址：")+3, text.indexOf("電")).trim()
-        val pn = text.substring(text.indexOf("電話：")+3, text.indexOf("營")).trim()
-        val link = document.getElementById("main-content").select("a").attr("href")
-        val post = Post(title,author,name,date,main,address,pn,link)
+        val post = Post("","","","","","","","")
+        try  {
+            val document = Jsoup.parse(response.string())
+            document.outputSettings().prettyPrint(false)
+            val text = document.getElementById("main-content").wholeText()
+            val startindex = text.indexOf("餐廳")
+            val endindex = text.indexOf("※ 發")
+            var main:String =""
+            try {
+                main = text.substring(startindex, endindex)
+            }catch (e:Exception){
+                main = text.substring(text.indexOf("2018")+4,endindex)
+            }
+            try {
+                post.article = main
+                post.author = document.select("div.article-metaline").get(0).select("span.article-meta-value").text()
+                post.title = document.select("div.article-metaline").get(1).select("span.article-meta-value").text()
+                post.link = document.getElementById("main-content").select("a").attr("href")
+                post.time = document.select("div.article-metaline").get(2).select("span.article-meta-value").text()
+            }catch (e:Exception){
+                Log.d(TAG,e.message+" rrrrr")
+            }
+
+            post.name = post.title.substring(post.title.indexOf("]")+1)
+
+            try {
+                post.address = text.substring(text.indexOf("址") + 2, text.indexOf("號")+1).trim()
+            }catch (e:Exception){
+                try {
+                    post.address = text.substring(text.indexOf("址") + 2, text.indexOf("電")).trim()
+                }catch (e:Exception){
+                    post.address = ""
+                    Log.d(TAG,e.message+" adress")
+                }
+            }
+            try{
+                var pnendindex = text.indexOf("電話：") + 3
+
+                while (text[pnendindex].isDigit() || text[pnendindex].equals('(')
+                    || text[pnendindex].equals(')')|| text[pnendindex].equals(' ')||text[pnendindex].equals('-'))
+                    pnendindex++
+
+                post.phoneNumber = text.substring(text.indexOf("電話：") + 3, pnendindex).trim()
+                Log.d(TAG, post.phoneNumber)
+            }catch (e:Exception){
+                Log.d(TAG,"cant find phoneNumber"+e.message)
+            }
+
+
+        }catch (e:Exception){
+            Log.d(TAG,e.message+" "+"here")
+        }
         return post
     }
+
 }

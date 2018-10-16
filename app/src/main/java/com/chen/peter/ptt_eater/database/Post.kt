@@ -9,15 +9,15 @@ import android.support.annotation.NonNull
 class Post (
              @PrimaryKey
              @NonNull
-             val title:String,
+             var title:String,
              @NonNull
-             val author:String,
+             var author:String,
              @NonNull
-             val name: String,
+             var name: String,
              @NonNull
-             val time: String,
-             val article:String,
-             val address:String,
-             val phoneNumber:String,
-             val link:String){
+             var time: String,
+             var article:String,
+             var address:String,
+             var phoneNumber:String,
+             var link:String){
 }

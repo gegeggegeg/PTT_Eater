@@ -20,7 +20,7 @@ class PTTFoodRepo( val database:PostsDataBase,
                    private val getPostApi: PttAPI,
                    private  val pageSize:Int = 10){
     companion object {
-        private var list = ArrayList<Page.Article>()
+        private var counter = 0
     }
 
     val TAG = "PTTFoodRepo"
@@ -30,19 +30,20 @@ class PTTFoodRepo( val database:PostsDataBase,
         pttApi.getCall(url).enqueue(
             object :Callback<Page>{
                 override fun onResponse(call: Call<Page>, response: Response<Page>) {
-                    list.addAll(response.body()!!.articleList)
-                    Log.d(TAG, list.size.toString())
-                    if(list.size>pageSize){
-                        for(element in list) {
-                            Log.d(TAG, element.title + "\r\n")
-                            val all = element.url
-                            val sub = all.substring(all.indexOf("bbs/")+4)
-                            loadPost(sub)
-                        }
+
+                    counter +=  response.body()!!.articleList.size
+
+                    for(element in response.body()!!.articleList) {
+                        val all = element.url
+                        val sub = all.substring(all.indexOf("bbs/")+4)
+                        loadPost(sub)
+                    }
+
+                    if(counter>pageSize){
+                        counter = 0
                     }else{
                         val last: String = response.body()!!.last
                         val next =  last.substring(last.indexOf("bbs/")+4)
-                        Log.d(TAG,next)
                         refresh(next)
                     }
                 }
@@ -61,20 +62,24 @@ class PTTFoodRepo( val database:PostsDataBase,
                     Log.d(TAG,"Failed to load Post "+t.message)
                 }
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    Log.d(TAG,"Post asserted "+response.body()!!.title)
-                    insertPostsIntoDb(response.body()!!)
+                    if(response.body()!!.title == "" ) {
+                        Log.d(TAG,"Abandon Post" + response.body()!!.title)
+                    }else {
+                        Log.d(TAG, "Post asserted " + response.body()!!.title)
+                        insertPostsIntoDb(response.body()!!)
+                    }
                 }
             }
         )
     }
 
-    private  fun insertPostsIntoDb(Post: Post){
+    public  fun insertPostsIntoDb(Post: Post){
         database.postsDao().insert(Post)
     }
 
 
 
-    private fun getpagedList(): LiveData<PagedList<Post>>{
+    public fun getpagedList(): LiveData<PagedList<Post>>{
         return LivePagedListBuilder(database.postsDao().requestPosts(),pageSize).build()
     }
 

@@ -30,7 +30,8 @@ class PageAdapter:Converter<ResponseBody,Page>{
         val articleList:ArrayList<Page.Article> = ArrayList()
         for(element in body){
             if(element.select("a").get(0).text().contains("食記")||
-                element.select("a").get(0).text().contains("廣宣")) {
+                element.select("a").get(0).text().contains("廣宣") &&
+                !element.select("a").get(0).text().contains("Fw:")) {
                 val article: Page.Article = Page.Article(
                     element.select("a").get(0).text(),
                     element.select("a").attr("href"),
