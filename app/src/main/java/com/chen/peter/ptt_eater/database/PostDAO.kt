@@ -16,4 +16,7 @@ interface PostDAO {
     @Query("SELECT * FROM FoodPosts")
     fun requestPosts() : DataSource.Factory<Int,Post>
 
+    @Query("DELETE FROM  FoodPosts")
+    fun deleteAll()
+
 }

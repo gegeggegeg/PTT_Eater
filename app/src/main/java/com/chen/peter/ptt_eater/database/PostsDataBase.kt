@@ -9,12 +9,12 @@ import android.content.Context
 @Database(entities = arrayOf(Post::class),version = 1, exportSchema = false)
 abstract class PostsDataBase: RoomDatabase() {
     companion object {
+        private var instance: PostsDataBase? = null
+
         fun getInstance(context: Context): PostsDataBase {
             val builder = Room.databaseBuilder(context, PostsDataBase::class.java, "FoodPosts.db")
-            return builder
-                .allowMainThreadQueries()
-                .fallbackToDestructiveMigration()
-                .build()
+            instance = builder.allowMainThreadQueries().build()
+            return instance!!
         }
     }
     abstract fun postsDao():PostDAO

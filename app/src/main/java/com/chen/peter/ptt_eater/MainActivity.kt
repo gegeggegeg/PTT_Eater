@@ -8,7 +8,9 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.widget.AbsListView
+import android.widget.ProgressBar
 import com.chen.peter.ptt_eater.database.PTTFoodRepo
 import com.chen.peter.ptt_eater.database.PostsDataBase
 import com.chen.peter.ptt_eater.network.PageAdapter
@@ -23,13 +25,14 @@ class MainActivity : AppCompatActivity() {
     val TAG = "MainActivity"
 
     private lateinit var model: PttFoodViewModel
+    private lateinit var progressBar:ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         model = getViewModel()
+        progressBar = findViewById(R.id.isloadingbar)
         initRecyclerView()
-        model.refresh()
     }
 
     private fun getViewModel(): PttFoodViewModel{
@@ -44,6 +47,7 @@ class MainActivity : AppCompatActivity() {
                     addConverterFactory(PostAdapter.Factory).
                     build().create(PttAPI::class.java)
                 val db = PostsDataBase.getInstance(this@MainActivity)
+                db.clearAllTables()
                 val repo = PTTFoodRepo(db,getpage,getpost)
 
                 @Suppress("UNCHECKED_CAST")
@@ -58,17 +62,17 @@ class MainActivity : AppCompatActivity() {
         recyclerview.layoutManager = mlayoutmanager
         val adapter = PttFoodAdapter()
         recyclerview.adapter = adapter
-//        recyclerview.addOnScrollListener(object :RecyclerView.OnScrollListener(){
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                val visibleItemCount = mlayoutmanager.childCount
-//                val totalitemCount = mlayoutmanager.itemCount
-//                val pastVisibleItems = mlayoutmanager.findFirstVisibleItemPosition()
-//                if(pastVisibleItems+visibleItemCount >= totalitemCount){
-//                    model.refresh()
-//                }
-//            }
-//        })
         model.getLiveDataPagedlist().observe(this, Observer { posts->
             if(posts != null) adapter.submitList(posts)})
+        model.isLoading().observe(this, Observer {
+            isloading->
+            if(isloading!!){
+                recyclerview.isLayoutFrozen = true
+                progressBar.visibility = View.VISIBLE
+            }else{
+                recyclerview.isLayoutFrozen = false
+                progressBar.visibility = View.INVISIBLE
+            }
+        })
     }
 }

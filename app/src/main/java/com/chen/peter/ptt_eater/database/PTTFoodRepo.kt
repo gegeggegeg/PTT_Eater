@@ -1,6 +1,7 @@
 package com.chen.peter.ptt_eater.database
 
 import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.os.AsyncTask
@@ -22,32 +23,41 @@ class PTTFoodRepo( val database:PostsDataBase,
     companion object {
         private var counter = 0
         private var next = ""
-        private var loading = false
+
     }
 
-    val TAG = "PTTFoodRepo"
+    private val loading:MutableLiveData<Boolean> = MutableLiveData()
+    private val TAG = "PTTFoodRepo"
+    private val FrontPage:String = "Food/index.html"
+
+    init {
+        loading.value = false
+    }
 
     @MainThread
-    fun refresh(url:String ){
-        loading  = true
+    fun refresh(url:String = next ){
+        loading.postValue(true)
+        Log.d(TAG, loading.value.toString())
         pttApi.getCall(url).enqueue(
             object :Callback<Page>{
                 override fun onResponse(call: Call<Page>, response: Response<Page>) {
-                    loading = false
+                    loading.postValue(false)
+                    Log.d(TAG, loading.value.toString())
                     val last: String = response.body()!!.last
                     next =  last.substring(last.indexOf("bbs/")+4)
-                    Log.d("test3", next)
+                    Log.d(TAG,"next = "+ next)
                     counter +=  response.body()!!.articleList.size
 
-                    for(element in response.body()!!.articleList) {
+                    for(element in response.body()!!.articleList.asReversed()) {
                         val all = element.url
                         val sub = all.substring(all.indexOf("bbs/")+4)
                         loadPost(sub)
                     }
                 }
+
                 override fun onFailure(call: Call<Page>, t: Throwable) {
-                    loading = false
-                    Log.d("test7","Failed to retrieve data "+t.message)
+                    loading.postValue(false)
+                    Log.d(TAG,"Failed to retrieve data "+t.message)
                 }
             }
         )
@@ -65,10 +75,10 @@ class PTTFoodRepo( val database:PostsDataBase,
                         Log.d(TAG,"Abandon Post" + response.body()!!.title)
                     }else {
                       val post = response.body()!!
-                        if(post.address.length<30 &&
-                            post.phoneNumber.length<30&&
-                            post.author.length<30&&
-                            post.title.length<30)
+                        if(post.address.length<40 &&
+                            post.phoneNumber.length<40&&
+                            post.author.length<40&&
+                            post.title.length<40)
                             insertPostsIntoDb(response.body()!!)
                     }
                 }
@@ -80,23 +90,36 @@ class PTTFoodRepo( val database:PostsDataBase,
         database.postsDao().insert(Post)
     }
 
+    fun isLoading():MutableLiveData<Boolean>{
+        return loading
+    }
+
 
 
     fun getpagedList(): LiveData<PagedList<Post>>{
         val config = PagedList.Config.Builder().
-            setPageSize(15).
-            setInitialLoadSizeHint(15).
-            setPrefetchDistance(5).
+            setPageSize(20).
+            setInitialLoadSizeHint(20).
+            setPrefetchDistance(10).
             setEnablePlaceholders(false)
             .build()
         return LivePagedListBuilder(database.postsDao().requestPosts(),config)
             .setBoundaryCallback(object :PagedList.BoundaryCallback<Post>(){
+                override fun onZeroItemsLoaded() {
+                    if(!loading.value!!)
+                        refresh(FrontPage)
+                }
+
                 override fun onItemAtEndLoaded(itemAtEnd: Post) {
-                    if(!loading)
+                    if(!loading.value!!)
                         refresh(next)
                 }
             })
             .build()
+    }
+
+    fun deleteAll(){
+        database.postsDao().deleteAll()
     }
 
 
