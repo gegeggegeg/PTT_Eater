@@ -7,9 +7,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.chen.peter.ptt_eater.R
 import com.chen.peter.ptt_eater.database.Post
+import com.squareup.picasso.Picasso
 
-class PttFoodAdapter(context:Context): PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
-    private val context = context
+class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
 
     companion object {
         val diffCallback = object :DiffUtil.ItemCallback<Post>(){
@@ -31,7 +31,7 @@ class PttFoodAdapter(context:Context): PagedListAdapter<Post, PttFoodVIewHolder>
                 R.layout.food_view_holder,
                 parent,
                 false
-            ),context
+            )
         )
         return holder
     }
@@ -39,10 +39,15 @@ class PttFoodAdapter(context:Context): PagedListAdapter<Post, PttFoodVIewHolder>
     override fun onBindViewHolder(holder: PttFoodVIewHolder, position: Int) {
         try {
             holder.bind(getItem(position)!!)
+            holder.webView.setInitialScale(100)
+            holder.webView.loadUrl(getItem(position)!!.imgsrc)
+
         }catch (e:Exception){
             //do nothing
         }
     }
+
+
 
 
 

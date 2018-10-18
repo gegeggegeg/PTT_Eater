@@ -8,6 +8,7 @@ import android.os.AsyncTask
 import android.support.annotation.MainThread
 import android.util.Log
 import com.chen.peter.ptt_eater.network.Page
+import com.chen.peter.ptt_eater.network.PictureAdapter
 import com.chen.peter.ptt_eater.network.PostAdapter
 import com.chen.peter.ptt_eater.network.PttAPI
 import retrofit2.Call
@@ -78,15 +79,54 @@ class PTTFoodRepo( val database:PostsDataBase,
                         Log.d(TAG,"Abandon Post" + response.body()!!.title)
                     }else {
                       val post = response.body()!!
-                        if(post.address.length<40 &&
-                            post.phoneNumber.length<40&&
-                            post.author.length<40&&
-                            post.title.length<40)
-                            insertPostsIntoDb(response.body()!!)
+                        loadPicUrls(post)
                     }
                 }
             }
         )
+    }
+
+    private fun loadPicUrls(post: Post) {
+        if(post.link.contains("pixnet")) {
+            loading.postValue(true)
+            val pixnetUrl = PixnetUrl(post.link)
+            try{
+                val picAPI = Retrofit.Builder().addConverterFactory(PictureAdapter.Factory)
+                .baseUrl(pixnetUrl.baseUrl).build().create(PttAPI::class.java)
+                picAPI.getPictureURLs(pixnetUrl.subUrl).enqueue(
+                object : Callback<ArrayList<String>> {
+                    override fun onResponse(call: Call<ArrayList<String>>, response: Response<ArrayList<String>>) {
+                        loading.postValue(false)
+                        try {
+                            post.imgsrc = response.body()!![0]
+                            Log.d(TAG,post.imgsrc)
+                        } catch (e: Exception) {
+                            Log.d(TAG, e.message)
+                        }
+                        if (post.address.length < 40 &&
+                            post.phoneNumber.length < 40 &&
+                            post.author.length < 40 &&
+                            post.title.length < 40
+                        )
+                            insertPostsIntoDb(post)
+                    }
+                    override fun onFailure(call: Call<ArrayList<String>>, t: Throwable) {
+                        loading.postValue(false)
+                        Log.d(TAG, t.message)
+                    }
+                })
+            }catch (e:Exception){
+                Log.d(TAG,e.message)
+            }
+        }else{
+            loading.postValue(false)
+            if (post.address.length < 40 &&
+                post.phoneNumber.length < 40 &&
+                post.author.length < 40 &&
+                post.title.length < 40
+            )
+                insertPostsIntoDb(post)
+        }
     }
 
     fun insertPostsIntoDb(Post: Post){
@@ -101,7 +141,7 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     fun getpagedList(): LiveData<PagedList<Post>>{
         val config = PagedList.Config.Builder().
-            setPageSize(10).
+            setPageSize(20).
             setInitialLoadSizeHint(20).
             setPrefetchDistance(10).
             setEnablePlaceholders(false)
@@ -125,6 +165,15 @@ class PTTFoodRepo( val database:PostsDataBase,
         database.postsDao().deleteAll()
     }
 
+    class PixnetUrl(rawUrl: String){
+        val baseUrl:String
+        val subUrl:String
+        init {
+            val index = rawUrl.indexOf("post/")+5
+            baseUrl = rawUrl.substring(0,index).trim()
+            subUrl = rawUrl.substring(index).trim()
+        }
+    }
 
 
 

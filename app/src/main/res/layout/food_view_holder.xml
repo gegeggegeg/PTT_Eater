@@ -4,7 +4,7 @@
         xmlns:cardview="http://schemas.android.com/apk/res-auto"
         android:id="@+id/CardView1"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:onClick="onClick"
         android:layout_margin="4dp"
         cardview:cardCornerRadius="4dp">
@@ -18,10 +18,11 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="title"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/webviewpic"
     />
 
     <TextView
@@ -58,16 +59,18 @@
             android:layout_height="wrap_content"
             android:text="date"
             android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phoneNumber"
             app:layout_constraintEnd_toEndOf="parent"
     />
-    <ImageView
-            android:id="@+id/thumbnail"
+    <WebView
+            android:id="@+id/webviewpic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
     />
+
+
 
 
 </android.support.constraint.ConstraintLayout>

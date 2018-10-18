@@ -26,7 +26,7 @@ class PostAdapter: Converter<ResponseBody,Post> {
         }
     }
     override fun convert(response: ResponseBody): Post {
-        val post = Post("","","","","","","","")
+        val post = Post("","","","","","","","","")
         try  {
             val document = Jsoup.parse(response.string())
             document.outputSettings().prettyPrint(false)

@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         val recyclerview = findViewById<RecyclerView>(R.id.recyclerView1)
         val mlayoutmanager = LinearLayoutManager(this)
         recyclerview.layoutManager = mlayoutmanager
-        val adapter = PttFoodAdapter(this)
+        val adapter = PttFoodAdapter()
         recyclerview.adapter = adapter
         model.getLiveDataPagedlist().observe(this, Observer { posts->
             if(posts != null) adapter.submitList(posts)})

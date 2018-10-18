@@ -19,5 +19,6 @@ class Post (
              var article:String,
              var address:String,
              var phoneNumber:String,
-             var link:String){
+             var link:String,
+             var imgsrc:String){
 }
