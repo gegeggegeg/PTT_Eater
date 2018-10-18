@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.AbsListView
 import android.widget.ProgressBar
 import com.chen.peter.ptt_eater.database.PTTFoodRepo
 import com.chen.peter.ptt_eater.database.PostsDataBase
@@ -60,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         val recyclerview = findViewById<RecyclerView>(R.id.recyclerView1)
         val mlayoutmanager = LinearLayoutManager(this)
         recyclerview.layoutManager = mlayoutmanager
-        val adapter = PttFoodAdapter()
+        val adapter = PttFoodAdapter(this)
         recyclerview.adapter = adapter
         model.getLiveDataPagedlist().observe(this, Observer { posts->
             if(posts != null) adapter.submitList(posts)})

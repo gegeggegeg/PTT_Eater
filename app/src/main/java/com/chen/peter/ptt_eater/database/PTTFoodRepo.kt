@@ -65,12 +65,15 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     @MainThread
     private fun loadPost(link : String){
+        loading.postValue(true)
         getPostApi.getSecondLier(link).enqueue(
             object :Callback<Post>{
                 override fun onFailure(call: Call<Post>, t: Throwable) {
+                    loading.postValue(false)
                     Log.d(TAG,"Failed to load Post "+t.message)
                 }
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
+                    loading.postValue(false)
                     if(response.body()!!.title == "" ) {
                         Log.d(TAG,"Abandon Post" + response.body()!!.title)
                     }else {
@@ -98,7 +101,7 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     fun getpagedList(): LiveData<PagedList<Post>>{
         val config = PagedList.Config.Builder().
-            setPageSize(20).
+            setPageSize(10).
             setInitialLoadSizeHint(20).
             setPrefetchDistance(10).
             setEnablePlaceholders(false)

@@ -1,14 +1,15 @@
 package com.chen.peter.ptt_eater.ui
 
 import android.arch.paging.PagedListAdapter
+import android.content.Context
 import android.support.v7.util.DiffUtil
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.chen.peter.ptt_eater.R
 import com.chen.peter.ptt_eater.database.Post
 
-class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
+class PttFoodAdapter(context:Context): PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
+    private val context = context
 
     companion object {
         val diffCallback = object :DiffUtil.ItemCallback<Post>(){
@@ -30,7 +31,7 @@ class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
                 R.layout.food_view_holder,
                 parent,
                 false
-            )
+            ),context
         )
         return holder
     }
@@ -42,6 +43,7 @@ class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
             //do nothing
         }
     }
+
 
 
 }

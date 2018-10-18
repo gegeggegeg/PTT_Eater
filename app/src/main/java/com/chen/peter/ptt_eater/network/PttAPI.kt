@@ -14,4 +14,7 @@ interface PttAPI {
 
     @GET("{url}")
     fun getSecondLier(@Path("url")url:String): Call<Post>
+
+    @GET("{url}")
+    fun getPictureURLs (@Path("url")url:String): Call<ArrayList<String>>
 }

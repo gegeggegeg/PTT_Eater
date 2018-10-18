@@ -44,6 +44,13 @@ class PostAdapter: Converter<ResponseBody,Post> {
                 post.author = document.select("div.article-metaline").get(0).select("span.article-meta-value").text()
                 post.title = document.select("div.article-metaline").get(1).select("span.article-meta-value").text()
                 post.link = document.getElementById("main-content").select("a").attr("href")
+                for(element in document.getElementById("main-content").select("a")){
+                    if(element.text().contains("pixnet")) {
+                        post.link = element.attr("href")
+                        Log.d(TAG,"change link: "+ post.link)
+                        break
+                    }
+                }
                 post.time = document.select("div.article-metaline").get(2).select("span.article-meta-value").text()
             }catch (e:Exception){
                 Log.d(TAG,e.message+" rrrrr")
