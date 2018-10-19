@@ -42,7 +42,7 @@ class PTTFoodRepo( val database:PostsDataBase,
         pttApi.getCall(url).enqueue(
             object :Callback<Page>{
                 override fun onResponse(call: Call<Page>, response: Response<Page>) {
-                    loading.postValue(false)
+                    //loading.postValue(false)
                     Log.d(TAG, loading.value.toString())
                     val last: String = response.body()!!.last
                     next =  last.substring(last.indexOf("bbs/")+4)
@@ -66,7 +66,7 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     @MainThread
     private fun loadPost(link : String){
-        loading.postValue(true)
+        //loading.postValue(true)
         getPostApi.getSecondLier(link).enqueue(
             object :Callback<Post>{
                 override fun onFailure(call: Call<Post>, t: Throwable) {
@@ -74,7 +74,7 @@ class PTTFoodRepo( val database:PostsDataBase,
                     Log.d(TAG,"Failed to load Post "+t.message)
                 }
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    loading.postValue(false)
+                    //loading.postValue(false)
                     if(response.body()!!.title == "" ) {
                         Log.d(TAG,"Abandon Post" + response.body()!!.title)
                     }else {
@@ -88,7 +88,7 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     private fun loadPicUrls(post: Post) {
         if(post.link.contains("pixnet")) {
-            loading.postValue(true)
+            //loading.postValue(true)
             val pixnetUrl = PixnetUrl(post.link)
             try{
                 val picAPI = Retrofit.Builder().addConverterFactory(PictureAdapter.Factory)
@@ -96,9 +96,15 @@ class PTTFoodRepo( val database:PostsDataBase,
                 picAPI.getPictureURLs(pixnetUrl.subUrl).enqueue(
                 object : Callback<ArrayList<String>> {
                     override fun onResponse(call: Call<ArrayList<String>>, response: Response<ArrayList<String>>) {
-                        loading.postValue(false)
                         try {
-                            post.imgsrc = response.body()!![0]
+                            var index = 0
+                            post.imgsrc = response.body()!![index]
+
+                            while(post.imgsrc.contains("gif")){
+                                index += 1
+                                post.imgsrc = response.body()!![index]
+                            }
+
                             Log.d(TAG,post.imgsrc)
                         } catch (e: Exception) {
                             Log.d(TAG, e.message)
@@ -109,6 +115,7 @@ class PTTFoodRepo( val database:PostsDataBase,
                             post.title.length < 40
                         )
                             insertPostsIntoDb(post)
+                        loading.postValue(false)
                     }
                     override fun onFailure(call: Call<ArrayList<String>>, t: Throwable) {
                         loading.postValue(false)
@@ -119,13 +126,13 @@ class PTTFoodRepo( val database:PostsDataBase,
                 Log.d(TAG,e.message)
             }
         }else{
-            loading.postValue(false)
             if (post.address.length < 40 &&
                 post.phoneNumber.length < 40 &&
                 post.author.length < 40 &&
                 post.title.length < 40
             )
                 insertPostsIntoDb(post)
+                loading.postValue(false)
         }
     }
 
@@ -141,9 +148,9 @@ class PTTFoodRepo( val database:PostsDataBase,
 
     fun getpagedList(): LiveData<PagedList<Post>>{
         val config = PagedList.Config.Builder().
-            setPageSize(20).
-            setInitialLoadSizeHint(20).
-            setPrefetchDistance(10).
+            setPageSize(30).
+            setInitialLoadSizeHint(30).
+            setPrefetchDistance(20).
             setEnablePlaceholders(false)
             .build()
         return LivePagedListBuilder(database.postsDao().requestPosts(),config)

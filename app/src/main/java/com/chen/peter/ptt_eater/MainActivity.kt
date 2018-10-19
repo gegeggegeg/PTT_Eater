@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -56,21 +57,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initRecyclerView(){
+
         val recyclerview = findViewById<RecyclerView>(R.id.recyclerView1)
         val mlayoutmanager = LinearLayoutManager(this)
         recyclerview.layoutManager = mlayoutmanager
         val adapter = PttFoodAdapter()
         recyclerview.adapter = adapter
-        model.getLiveDataPagedlist().observe(this, Observer { posts->
-            if(posts != null) adapter.submitList(posts)})
+
+        model.getLiveDataPagedlist().observe(this, Observer {
+                posts-> if(posts != null)
+                    adapter.submitList(posts)})
+
         model.isLoading().observe(this, Observer {
             isloading->
             if(isloading!!){
                 recyclerview.isLayoutFrozen = true
                 progressBar.visibility = View.VISIBLE
             }else{
-                recyclerview.isLayoutFrozen = false
-                progressBar.visibility = View.INVISIBLE
+                val handler = Handler()
+                handler.postDelayed(object :Runnable{
+                    override fun run() {
+                        recyclerview.isLayoutFrozen = false
+                        progressBar.visibility = View.INVISIBLE
+                    }
+                },1000)
             }
         })
     }

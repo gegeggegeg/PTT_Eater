@@ -1,13 +1,11 @@
 package com.chen.peter.ptt_eater.ui
 
 import android.arch.paging.PagedListAdapter
-import android.content.Context
 import android.support.v7.util.DiffUtil
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.chen.peter.ptt_eater.R
 import com.chen.peter.ptt_eater.database.Post
-import com.squareup.picasso.Picasso
 
 class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
 
@@ -39,13 +37,11 @@ class PttFoodAdapter: PagedListAdapter<Post, PttFoodVIewHolder>(diffCallback) {
     override fun onBindViewHolder(holder: PttFoodVIewHolder, position: Int) {
         try {
             holder.bind(getItem(position)!!)
-            holder.webView.setInitialScale(100)
-            holder.webView.loadUrl(getItem(position)!!.imgsrc)
-
         }catch (e:Exception){
             //do nothing
         }
     }
+
 
 
 

@@ -30,11 +30,10 @@ class PageAdapter:Converter<ResponseBody,Page>{
         Log.d("TEST1",last)
         val body:Elements = document.select("div.r-ent")
         val articleList:ArrayList<Page.Article> = ArrayList()
-        try{
-            for(element in body){
+        for(element in body){
+            try{
                 if(element.select("a").get(0).text().contains("食記")||
-                    element.select("a").get(0).text().contains("廣宣") &&
-                    !element.select("a").get(0).text().contains("Fw:")) {
+                    element.select("a").get(0).text().contains("廣宣")) {
                     Log.d("test5",element.select("a").get(0).text())
                     Log.d("test5",element.select("a").attr("href"))
                     Log.d("test5",element.select("div.author").text())
@@ -44,11 +43,11 @@ class PageAdapter:Converter<ResponseBody,Page>{
                         element.select("div.author").text()
                     )
                     articleList.add(article)
+                    }
+                }catch (e:Exception){
+                    Log.d("error123",e.message)
                 }
             }
-        }catch (e:Exception){
-            Log.d("error123",e.message)
-        }
         val page = Page(last,articleList)
         return page
     }
